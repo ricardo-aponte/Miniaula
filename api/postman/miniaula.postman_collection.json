@@ -1,91 +1,39 @@
 {
   "info": {
     "name": "MiniAula API",
-    "description": "Colección de endpoints de MiniAula (Fase 1: Health, Auth y Perfil)",
+    "description": "Colección completa de MiniAula: autenticación, perfil, catálogo de cursos, gestión del instructor, inscripciones, progreso secuencial y cuestionarios. Los datos de ejemplo de los scripts corresponden a los seeders demo (usuarios con contraseña Demo1234 y cursos 1, 2 y 3 publicados).",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
-    {
-      "key": "baseUrl",
-      "value": "http://localhost:3000/api",
-      "type": "string"
-    },
-    {
-      "key": "token",
-      "value": "",
-      "type": "string"
-    }
+    { "key": "baseUrl", "value": "http://localhost:3000/api", "type": "string" },
+    { "key": "instructorToken", "value": "", "type": "string" },
+    { "key": "estudianteToken", "value": "", "type": "string" },
+    { "key": "estudiante2Token", "value": "", "type": "string" },
+    { "key": "cursoId", "value": "1", "type": "string" },
+    { "key": "leccionId", "value": "1", "type": "string" },
+    { "key": "leccionCuestionarioId", "value": "5", "type": "string" },
+    { "key": "leccionBloqueadaId", "value": "8", "type": "string" },
+    { "key": "preguntaId", "value": "1", "type": "string" }
   ],
   "item": [
     {
-      "name": "Health Check",
-      "request": {
-        "method": "GET",
-        "header": [],
-        "url": "{{baseUrl}}/health"
-      }
+      "name": "Health",
+      "item": [
+        {
+          "name": "Estado de la API",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/health"
+          }
+        }
+      ]
     },
     {
       "name": "Auth",
       "item": [
         {
-          "name": "Registrar usuario (Instructor)",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "if (pm.response.code === 201) {",
-                  "  const data = pm.response.json();",
-                  "  if (data.token) pm.collectionVariables.set('token', data.token);",
-                  "}"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              { "key": "Content-Type", "value": "application/json" }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"nombre\": \"Ana Pérez\",\n  \"email\": \"ana@miniaula.com\",\n  \"password\": \"12345678\",\n  \"rol\": \"instructor\"\n}"
-            },
-            "url": "{{baseUrl}}/auth/register"
-          }
-        },
-        {
-          "name": "Registrar usuario (Estudiante)",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "if (pm.response.code === 201) {",
-                  "  const data = pm.response.json();",
-                  "  if (data.token) pm.collectionVariables.set('token', data.token);",
-                  "}"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              { "key": "Content-Type", "value": "application/json" }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"nombre\": \"Juan Pérez\",\n  \"email\": \"juan@miniaula.com\",\n  \"password\": \"12345678\",\n  \"rol\": \"estudiante\"\n}"
-            },
-            "url": "{{baseUrl}}/auth/register"
-          }
-        },
-        {
-          "name": "Iniciar sesión",
+          "name": "Login instructor (seed)",
           "event": [
             {
               "listen": "test",
@@ -94,7 +42,7 @@
                 "exec": [
                   "if (pm.response.code === 200) {",
                   "  const data = pm.response.json();",
-                  "  if (data.token) pm.collectionVariables.set('token', data.token);",
+                  "  if (data.token) pm.collectionVariables.set('instructorToken', data.token);",
                   "}"
                 ]
               }
@@ -102,14 +50,116 @@
           ],
           "request": {
             "method": "POST",
-            "header": [
-              { "key": "Content-Type", "value": "application/json" }
-            ],
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"juan@miniaula.com\",\n  \"password\": \"12345678\"\n}"
+              "raw": "{\n  \"email\": \"ana@miniaula.com\",\n  \"password\": \"Demo1234\"\n}"
             },
             "url": "{{baseUrl}}/auth/login"
+          }
+        },
+        {
+          "name": "Login estudiante (seed)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  const data = pm.response.json();",
+                  "  if (data.token) pm.collectionVariables.set('estudianteToken', data.token);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"maria@miniaula.com\",\n  \"password\": \"Demo1234\"\n}"
+            },
+            "url": "{{baseUrl}}/auth/login"
+          }
+        },
+        {
+          "name": "Login estudiante sin avance (seed)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  const data = pm.response.json();",
+                  "  if (data.token) pm.collectionVariables.set('estudiante2Token', data.token);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"pedro@miniaula.com\",\n  \"password\": \"Demo1234\"\n}"
+            },
+            "url": "{{baseUrl}}/auth/login"
+          }
+        },
+        {
+          "name": "Registrar instructor",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  const data = pm.response.json();",
+                  "  if (data.token) pm.collectionVariables.set('instructorToken', data.token);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Laura Méndez\",\n  \"email\": \"laura@miniaula.com\",\n  \"password\": \"Demo1234\",\n  \"rol\": \"instructor\"\n}"
+            },
+            "url": "{{baseUrl}}/auth/register"
+          }
+        },
+        {
+          "name": "Registrar estudiante",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  const data = pm.response.json();",
+                  "  if (data.token) pm.collectionVariables.set('estudianteToken', data.token);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Sofía Ramírez\",\n  \"email\": \"sofia@miniaula.com\",\n  \"password\": \"Demo1234\",\n  \"rol\": \"estudiante\"\n}"
+            },
+            "url": "{{baseUrl}}/auth/register"
           }
         }
       ]
@@ -118,13 +168,23 @@
       "name": "Users",
       "item": [
         {
-          "name": "Ver mi perfil",
+          "name": "Ver mi perfil (instructor)",
           "request": {
             "auth": {
               "type": "bearer",
-              "bearer": [
-                { "key": "token", "value": "{{token}}", "type": "string" }
-              ]
+              "bearer": [{ "key": "token", "value": "{{instructorToken}}", "type": "string" }]
+            },
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/users/me"
+          }
+        },
+        {
+          "name": "Ver mi perfil (estudiante)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{estudianteToken}}", "type": "string" }]
             },
             "method": "GET",
             "header": [],
@@ -136,19 +196,482 @@
           "request": {
             "auth": {
               "type": "bearer",
-              "bearer": [
-                { "key": "token", "value": "{{token}}", "type": "string" }
-              ]
+              "bearer": [{ "key": "token", "value": "{{estudianteToken}}", "type": "string" }]
             },
             "method": "PUT",
-            "header": [
-              { "key": "Content-Type", "value": "application/json" }
-            ],
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"nombre\": \"Juan Pérez Actualizado\",\n  \"email\": \"juan.nuevo@miniaula.com\"\n}"
+              "raw": "{\n  \"nombre\": \"María López Actualizada\"\n}"
             },
             "url": "{{baseUrl}}/users/me"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Cursos (catálogo público)",
+      "item": [
+        {
+          "name": "Listar cursos publicados (búsqueda y paginación)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/cursos?page=1&limit=10&q=web&categoria=Programación"
+          }
+        },
+        {
+          "name": "Ver detalle de un curso (temario sin contenido)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/cursos/{{cursoId}}"
+          }
+        },
+        {
+          "name": "Curso inexistente (404)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/cursos/999999"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Instructor",
+      "item": [
+        {
+          "name": "Listar mis cursos",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{instructorToken}}", "type": "string" }]
+            },
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/instructor/cursos?page=1&limit=10"
+          }
+        },
+        {
+          "name": "Crear curso (queda en borrador)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  const data = pm.response.json();",
+                  "  pm.collectionVariables.set('cursoId', data.curso.id);",
+                  "  pm.test('El curso nuevo queda en borrador', () => pm.expect(data.curso.estado).to.eql('borrador'));",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{instructorToken}}", "type": "string" }]
+            },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titulo\": \"Curso de prueba\",\n  \"descripcion\": \"Curso creado desde la colección de Postman para probar el flujo del instructor.\",\n  \"categoria\": \"Programación\",\n  \"nivel\": \"principiante\"\n}"
+            },
+            "url": "{{baseUrl}}/cursos"
+          }
+        },
+        {
+          "name": "Ver mi curso (temario, contenido y respuestas)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{instructorToken}}", "type": "string" }]
+            },
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/instructor/cursos/{{cursoId}}"
+          }
+        },
+        {
+          "name": "Editar curso",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{instructorToken}}", "type": "string" }]
+            },
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titulo\": \"Curso de prueba actualizado\",\n  \"nivel\": \"intermedio\"\n}"
+            },
+            "url": "{{baseUrl}}/cursos/{{cursoId}}"
+          }
+        },
+        {
+          "name": "Crear lección de contenido",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  const data = pm.response.json();",
+                  "  pm.collectionVariables.set('leccionId', data.leccion.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{instructorToken}}", "type": "string" }]
+            },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titulo\": \"Introducción al curso\",\n  \"tipo\": \"contenido\",\n  \"contenido\": \"En esta lección repasamos los objetivos y la dinámica del curso.\",\n  \"videoUrl\": \"https://www.youtube.com/watch?v=dQw4w9WgXcQ\"\n}"
+            },
+            "url": "{{baseUrl}}/cursos/{{cursoId}}/lecciones"
+          }
+        },
+        {
+          "name": "Crear lección de cuestionario",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  const data = pm.response.json();",
+                  "  pm.collectionVariables.set('leccionCuestionarioId', data.leccion.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{instructorToken}}", "type": "string" }]
+            },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titulo\": \"Cuestionario final\",\n  \"tipo\": \"cuestionario\",\n  \"notaMinima\": 60\n}"
+            },
+            "url": "{{baseUrl}}/cursos/{{cursoId}}/lecciones"
+          }
+        },
+        {
+          "name": "Cambiar el orden de las lecciones",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{instructorToken}}", "type": "string" }]
+            },
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"orden\": [5, 4, 3, 2, 1]\n}"
+            },
+            "url": "{{baseUrl}}/cursos/{{cursoId}}/lecciones/orden"
+          },
+          "description": "El arreglo debe incluir TODOS los IDs de lecciones del curso exactamente una vez. El ejemplo funciona con el curso 1 de los seeders (lecciones 1 a 5)."
+        },
+        {
+          "name": "Editar lección",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{instructorToken}}", "type": "string" }]
+            },
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titulo\": \"Introducción actualizada\"\n}"
+            },
+            "url": "{{baseUrl}}/lecciones/{{leccionId}}"
+          }
+        },
+        {
+          "name": "Eliminar lección",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{instructorToken}}", "type": "string" }]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/lecciones/{{leccionId}}"
+          }
+        },
+        {
+          "name": "Crear pregunta",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  const data = pm.response.json();",
+                  "  pm.collectionVariables.set('preguntaId', data.pregunta.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{instructorToken}}", "type": "string" }]
+            },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"enunciado\": \"¿Qué es una función en JavaScript?\",\n  \"opciones\": [\n    \"Un bloque de código reutilizable\",\n    \"Una variable global\",\n    \"Un archivo de estilos\"\n  ],\n  \"indiceCorrecto\": 0\n}"
+            },
+            "url": "{{baseUrl}}/lecciones/{{leccionCuestionarioId}}/preguntas"
+          }
+        },
+        {
+          "name": "Editar pregunta",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{instructorToken}}", "type": "string" }]
+            },
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"enunciado\": \"¿Qué es una función en JavaScript? (actualizado)\",\n  \"indiceCorrecto\": 0\n}"
+            },
+            "url": "{{baseUrl}}/preguntas/{{preguntaId}}"
+          }
+        },
+        {
+          "name": "Eliminar pregunta",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{instructorToken}}", "type": "string" }]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/preguntas/{{preguntaId}}"
+          }
+        },
+        {
+          "name": "Panel del curso (resumen)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{instructorToken}}", "type": "string" }]
+            },
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/instructor/cursos/{{cursoId}}/resumen"
+          }
+        },
+        {
+          "name": "Publicar curso",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{instructorToken}}", "type": "string" }]
+            },
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estado\": \"publicado\"\n}"
+            },
+            "url": "{{baseUrl}}/cursos/{{cursoId}}/estado"
+          }
+        },
+        {
+          "name": "Archivar curso",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{instructorToken}}", "type": "string" }]
+            },
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estado\": \"archivado\"\n}"
+            },
+            "url": "{{baseUrl}}/cursos/{{cursoId}}/estado"
+          }
+        },
+        {
+          "name": "Eliminar curso",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{instructorToken}}", "type": "string" }]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/cursos/{{cursoId}}"
+          },
+          "description": "Si el curso tiene inscritos devuelve 409 COURSE_HAS_ENROLLMENTS: debe archivarse en lugar de eliminarse (RN-06)."
+        }
+      ]
+    },
+    {
+      "name": "Estudiante",
+      "item": [
+        {
+          "name": "Inscribirme en un curso",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{estudianteToken}}", "type": "string" }]
+            },
+            "method": "POST",
+            "header": [],
+            "url": "{{baseUrl}}/cursos/{{cursoId}}/inscripcion"
+          },
+          "description": "Devuelve 409 ALREADY_ENROLLED si el estudiante ya está inscripto (RN-04) y 422 COURSE_NOT_PUBLISHED si el curso no está publicado."
+        },
+        {
+          "name": "Mis cursos con porcentaje de avance",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{estudianteToken}}", "type": "string" }]
+            },
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/inscripciones/mias"
+          }
+        },
+        {
+          "name": "Ver lección de contenido desbloqueada",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{estudianteToken}}", "type": "string" }]
+            },
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/lecciones/{{leccionId}}"
+          }
+        },
+        {
+          "name": "Ver lección bloqueada (403)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{estudiante2Token}}", "type": "string" }]
+            },
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/lecciones/{{leccionBloqueadaId}}"
+          },
+          "description": "Con el usuario Pedro (solo completó la lección 6 del curso 2), la lección 8 devuelve 403 LESSON_LOCKED."
+        },
+        {
+          "name": "Marcar lección de contenido como completada",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{estudianteToken}}", "type": "string" }]
+            },
+            "method": "POST",
+            "header": [],
+            "url": "{{baseUrl}}/lecciones/{{leccionId}}/completar"
+          }
+        },
+        {
+          "name": "Ver cuestionario (sin respuestas correctas)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  const data = pm.response.json();",
+                  "  pm.test('Las preguntas no exponen indiceCorrecto', () => {",
+                  "    const preguntas = data.leccion.preguntas || [];",
+                  "    pm.expect(preguntas.every((p) => p.indiceCorrecto === undefined)).to.be.true;",
+                  "  });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{estudianteToken}}", "type": "string" }]
+            },
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/lecciones/{{leccionCuestionarioId}}"
+          }
+        },
+        {
+          "name": "Rendir intento de cuestionario",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  const data = pm.response.json();",
+                  "  pm.test('El servidor califica y devuelve la nota', () => {",
+                  "    pm.expect(data.resultado).to.have.property('nota');",
+                  "    pm.expect(data.resultado).to.have.property('aprobado');",
+                  "  });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{estudianteToken}}", "type": "string" }]
+            },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"respuestas\": [\n    { \"preguntaId\": 1, \"opcion\": 0 },\n    { \"preguntaId\": 2, \"opcion\": 1 },\n    { \"preguntaId\": 3, \"opcion\": 2 }\n  ]\n}"
+            },
+            "url": "{{baseUrl}}/lecciones/{{leccionCuestionarioId}}/intentos"
+          },
+          "description": "Las respuestas corresponden a las preguntas del cuestionario del curso 1 en los seeders. Máximo 3 intentos por cuestionario (RN-03)."
+        },
+        {
+          "name": "Ver mi progreso en un curso",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{estudianteToken}}", "type": "string" }]
+            },
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/cursos/{{cursoId}}/progreso"
           }
         }
       ]

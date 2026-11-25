@@ -4,15 +4,17 @@
   "description": "",
   "main": "src/server.js",
   "scripts": {
-    "dev": "nodemon src/server.js",
-    "start": "node src/server.js",
-    "db:migrate": "npx sequelize-cli db:migrate --config src/config/sequelize.config.cjs --migrations-path src/db/migrations",
-    "db:migrate:undo": "npx sequelize-cli db:migrate:undo:all --config src/config/sequelize.config.cjs --migrations-path src/db/migrations",
-    "db:seed": "npx sequelize-cli db:seed:all --config src/config/sequelize.config.cjs --seeders-path src/db/seeders"
+    "start": "nodemon src/server.js",
+    "dev": "node src/server.js",
+    "db:migrate": "pnpm exec sequelize-cli db:migrate --config src/config/sequelize.config.cjs --migrations-path src/db/migrations",
+    "db:migrate:undo": "pnpm exec sequelize-cli db:migrate:undo:all --config src/config/sequelize.config.cjs --migrations-path src/db/migrations",
+    "db:seed": "pnpm exec sequelize-cli db:seed:all --config src/config/sequelize.config.cjs --seeders-path src/db/seeders",
+    "db:seed:undo": "pnpm exec sequelize-cli db:seed:undo:all --config src/config/sequelize.config.cjs --seeders-path src/db/seeders"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "packageManager": "pnpm@11.21.0",
   "type": "module",
   "dependencies": {
     "bcrypt": "^6.0.0",

@@ -1,0 +1,199 @@
+El sistema tiene dos tipos de usuario:
+• Instructor: crea cursos con lecciones de contenido y cuestionarios, los publica y sigue el avance
+de sus estudiantes.
+• Estudiante: explora el catálogo, se inscribe, avanza lección por lección, rinde cuestionarios y ve
+su progreso.
+El reto técnico central es el avance secuencial: una lección solo se desbloquea cuando la anterior está
+completada, y los cuestionarios se califican en el servidor sin exponer nunca las respuestas correctas.
+
+Requisitos funcionales
+Código  Módulo          Requisito                                          Rol
+RF-01  Autenticación   Registrarse con nombre, email, contraseña y rol    Ambos
+RF-02  Autenticación   Iniciar y cerrar sesión                            Ambos
+RF-03  Autenticación   Ver y editar el propio perfil                      Ambos
+RF-04  Cursos          Ver el catálogo de cursos publicados con búsqueda
+                       por título, filtro por categoría y paginación      Estudiante
+RF-05  Cursos          Ver el detalle de un curso con su temario, sin el
+                       contenido de las lecciones                         Estudiante
+RF-06  Cursos          Crear y editar cursos; todo curso nuevo queda en
+                       borrador                                           Instructor
+RF-07  Cursos          Publicar y archivar sus cursos                     Instructor
+RF-08  Lecciones       Crear, editar y eliminar lecciones de contenido
+                       (texto y enlace a video)                           Instructor
+RF-09  Lecciones       Cambiar el orden de las lecciones de un curso      Instructor
+RF-10  Lecciones       Ver el contenido de las lecciones desbloqueadas; 
+                       las bloqueadas se muestran sin contenido           Estudiante
+RF-11  Inscripción y
+       progreso        Inscribirse en un curso publicado                 Estudiante
+RF-12  Inscripción y
+        progreso       Marcar una lección de contenido como completada    Estudiante
+RF-13 Inscripción y
+       progreso        Ver "Mis cursos" con el porcentaje de avance de
+                       cada uno                                           Estudiante
+RF-14  Cuestionarios   Crear, editar y eliminar preguntas de opción
+                        múltiple y definir la nota mínima de aprobación   Instructor
+RF-15  Cuestionarios    Rendir un cuestionario y ver su nota y si aprobó  Estudiante
+RF-16  Panel            Ver por curso: inscritos, progreso promedio, nota
+                        promedio y lección donde más estudiantes se
+                        detienen                                          Instructor
+
+Reglas de negocio
+Las reglas se validan en el servidor; validarlas solo en el frontend no cuenta como cumplidas.
+Código Regla
+RN-01 Una lección solo es accesible si la anterior está completada; si la anterior es un
+cuestionario, debe estar aprobado
+RN-02 Las respuestas correctas nunca se envían al cliente; la calificación se hace en el
+Código Regla servidor
+RN-03 Máximo 3 intentos por cuestionario; se guarda la mejor nota
+RN-04 Un estudiante no puede inscribirse dos veces en el mismo curso
+RN-05 El catálogo solo muestra cursos publicados, y no se puede publicar un curso sin al
+menos una lección
+RN-06 Un curso con inscritos no se elimina, solo se archiva
+RN-07 Un instructor solo puede modificar sus propios cursos, lecciones y preguntas
+RN-08 Un estudiante solo ve su propio progreso y sus propias notas
+
+Requisitos técnicos: backend
+La pareja elige Express o NestJS al inicio de la semana 1 y no cambia después. Con Express se usa
+JavaScript con módulos ES (import/export).
+Código Requisito Detalle
+RT-B01 | Arquitectura por capas
+Detalle: routes -> controllers -> services -> repositories (o modelos del ORM); los controladores no contienen lógica de negocio ni consultas directas.
+
+RT-B02 | Autenticación
+Detalle: Contraseñas con bcrypt, JWT con expiración, middleware que verifica token y rol.
+
+RT-B03 | Autorización por recurso
+Detalle: Middlewares que verifican que el instructor es dueño del curso y que el estudiante está inscrito antes de acceder a una lección.
+
+RT-B04 | Validación
+Detalle: Toda entrada (body, params, query) se valida con Zod o Joi antes de llegar al controlador.
+
+RT-B05 | Manejo de errores
+Detalle: Middleware centralizado, clase de error propia con código HTTP y formato único { error: { code, message, details } }.
+
+RT-B06 | Seguridad
+Detalle: helmet, cors con el origen del frontend, rate limit en login; nunca se devuelve la contraseña ni las respuestas correctas.
+
+RT-B07 | Configuración
+Detalle: Variables en .env, .env.example en el repositorio y .env en .gitignore.
+
+RT-B08 | Base de datos
+Detalle: Migraciones y seed con mínimo 2 instructores, 3 estudiantes y 3 cursos publicados de 5 lecciones con al menos un cuestionario cada uno.
+
+RT-B09 | Listados
+Detalle: Paginación (page, limit) y filtros por query string.
+
+RT-B10 | Documentación
+Detalle: OpenAPI/Swagger en /api/docs, o colección de Postman exportada, con todos los endpoints mínimos.
+
+RT-B11 | Docker
+Detalle: Dockerfile propio para la API; la base de datos corre en su propio contenedor con volumen para los datos.
+
+RT-B12 | Logs
+Detalle: Registro de peticiones con morgan o pino.
+
+
+Buenas prácticas obligatorias
+Estas prácticas se revisan en cada entrega y pesan en la nota tanto como la funcionalidad.
+• ☐ Funciones cortas con una sola responsabilidad; sin lógica duplicada.
+• ☐ Códigos HTTP correctos: 200, 201, 204, 400, 401, 403 (lección bloqueada o sin permiso), 404,
+409 (inscripción duplicada), 422, 500.
+• ☐ Ningún secreto en el repositorio (claves JWT, contraseñas de BD).
+• ☐ El proyecto completo (API, frontend y base de datos) se levanta con un solo docker compose
+up --build, sin instalar nada más que Docker.
+
+Modelo de datos y endpoints mínimos
+Nota general:
+- El modelo base tiene seis entidades; la pareja puede ampliarlo justificando el cambio en el README.
+
+1. Usuario
+   - Campos principales: id, nombre, email (único), passwordHash, rol (estudiante / instructor), creadoEn
+   - Relaciones: Un instructor tiene muchos cursos; un estudiante tiene muchas inscripciones.
+
+2. Curso
+   - Campos principales: id, titulo, descripcion, categoria, nivel, estado (borrador / publicado / archivado), instructorId, creadoEn
+   - Relaciones: Tiene muchas lecciones e inscripciones.
+
+3. Leccion
+   - Campos principales: id, titulo, tipo (contenido / cuestionario), contenido, videoUrl, orden, notaMinima, cursoId
+   - Relaciones: Tiene muchas preguntas si es cuestionario.
+
+4. Pregunta
+   - Campos principales: id, enunciado, opciones (lista), indiceCorrecto, leccionId
+   - Relaciones: Pertenece a una lección.
+
+5. Inscripcion
+   - Campos principales: id, estudianteId, cursoId, fechaInscripcion, completado
+   - Relaciones: Única por estudiante y curso.
+
+6. Progreso
+   - Campos principales: id, inscripcionId, leccionId, completada, intentos, mejorNota, actualizadoEn
+   - Relaciones: Único por inscripción y lección.
+
+ENDPOINTS MÍNIMOS (PREFIJO /api)
+================================================================================
+
+Autenticación y Usuarios:
+- POST        | /auth/register                   | Público
+- POST        | /auth/login                      | Público
+- GET / PUT   | /users/me                        | Autenticado
+
+Cursos (Catálogo e Instructor):
+- GET         | /cursos?categoria=&q=&page=&limit= | Público (solo publicados)
+- GET         | /cursos/:id                      | Público (detalle y temario, sin contenido)
+- POST        | /cursos                          | Instructor
+- PUT / DELETE| /cursos/:id                      | Instructor dueño
+- PATCH       | /cursos/:id/estado               | Instructor dueño (publicar o archivar)
+- GET         | /instructor/cursos               | Instructor
+- GET         | /instructor/cursos/:id/resumen   | Instructor dueño
+
+Lecciones y Preguntas:
+- POST        | /cursos/:id/lecciones            | Instructor dueño
+- PUT / DELETE| /lecciones/:id                   | Instructor dueño
+- PATCH       | /cursos/:id/lecciones/orden      | Instructor dueño
+- POST        | /lecciones/:id/preguntas         | Instructor dueño
+- PUT / DELETE| /preguntas/:id                   | Instructor dueño
+
+Inscripciones y Progreso del Estudiante:
+- POST        | /cursos/:id/inscripcion          | Estudiante
+- GET         | /inscripciones/mias              | Estudiante
+- GET         | /lecciones/:id                   | Estudiante inscrito (403 si está bloqueada)
+- POST        | /lecciones/:id/completar         | Estudiante inscrito
+- POST        | /lecciones/:id/intentos          | Estudiante inscrito (envía respuestas, recibe nota)
+- GET         | /cursos/:id/progreso             | Estudiante inscrito
+
+
+ENTREGA FINAL Y DEFENSA
+=================================
+Requisito de entrega:
+- La entrega final es el enlace al repositorio con el tag v1.0.0
+
+El repositorio debe incluir:
+- Código de backend y frontend en un monorepo con carpetas api/ y web/.
+- Dockerfile de la API, Dockerfile del frontend y docker-compose.yml en la raíz con tres servicios (API, frontend y base de datos) y un volumen para los datos.
+- README completo: cómo levantar todo con docker compose up --build, cómo correr el seed, variables de entorno y usuarios de prueba.
+- .env.example.
+- Documentación de la API (Swagger o colección de Postman).
+
+
+////////////////***************************************************************
+{
+  "nombre": "Jose Armando Vargas",
+  "email": "tommyvs@nur.edu.bo",
+  "password": "12345678",
+  "rol": "estudiante"
+}
+
+Estado de tu base real miniaula tras migrar y sembrar:
+usuarios 6 (tu usuario previo intacto) | cursos 3 | lecciones 15 | preguntas 7 | inscripciones 6 | progresos 8
+Cursos asignados correctamente a ana@miniaula.com (2) y carlos@miniaula.com (1)
+
+Cómo arrancar
+# En Miniaula/
+docker compose up -d
+# En Miniaula/api/
+pnpm install
+pnpm db:migrate
+pnpm db:seed
+pnpm start
+Usuarios: ana@miniaula.com, carlos@miniaula.com, juan@miniaula.com, maria@miniaula.com, pedro@miniaula.com — contraseña Demo1234.
