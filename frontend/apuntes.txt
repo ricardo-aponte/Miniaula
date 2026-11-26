@@ -1,0 +1,119 @@
+REQUISITOS TÉCNICOS: FRONTEND
+================================================================================
+
+Notas generales:
+- El frontend es una SPA en React creada con Vite, en JavaScript.
+
+RT-F01 | Ruteo
+Detalle: React Router con rutas públicas, rutas protegidas por sesión y rutas protegidas por rol.
+
+RT-F02 | Estado de sesión
+Detalle: Context API (o Zustand) para usuario y token; la sesión sobrevive a recargar la página.
+
+RT-F03 | Capa de servicios
+Detalle: Ningún componente llama a fetch/axios directamente; una instancia configurada adjunta el token y cierra sesión ante un 401.
+
+RT-F04 | Hooks personalizados
+Detalle: Al menos 2 (por ejemplo useAuth, useFetch o useProgreso).
+
+RT-F05 | Formularios
+Detalle: Validación en el cliente (React Hook Form o propia) y muestra de los errores devueltos por la API.
+
+RT-F06 | Estados de UI
+Detalle: Cada vista con datos remotos maneja carga, error y lista vacía.
+
+RT-F07 | Responsivo
+Detalle: Funciona desde 375 px de ancho, con una librería de estilos (Tailwind, MUI, Bootstrap) usada de forma consistente.
+
+RT-F08 | Configuración
+Detalle: URL de la API en VITE_API_URL, nunca escrita en el código.
+
+RT-F09 | Docker
+Detalle: Dockerfile multi-etapa que compila con Vite y sirve el resultado con Nginx.
+
+Pantallas mínimas:
+- Estudiante: login, registro, catálogo, detalle de curso con temario, vista de lección, cuestionario con resultado, mis cursos con progreso y perfil.
+- Instructor: mis cursos, editor de curso, editor de lecciones y preguntas, y panel.
+
+
+Buenas prácticas obligatorias
+Estas prácticas se revisan en cada entrega y pesan en la nota tanto como la funcionalidad.
+• ☐ Funciones cortas con una sola responsabilidad; sin lógica duplicada.
+• ☐ Códigos HTTP correctos: 200, 201, 204, 400, 401, 403 (lección bloqueada o sin permiso), 404,
+409 (inscripción duplicada), 422, 500.
+• ☐ Ningún secreto en el repositorio (claves JWT, contraseñas de BD).
+• ☐ El proyecto completo (API, frontend y base de datos) se levanta con un solo docker compose
+up --build, sin instalar nada más que Docker.
+
+Modelo de datos y endpoints mínimos
+Nota general:
+- El modelo base tiene seis entidades; la pareja puede ampliarlo justificando el cambio en el README.
+
+1. Usuario
+   - Campos principales: id, nombre, email (único), passwordHash, rol (estudiante / instructor), creadoEn
+   - Relaciones: Un instructor tiene muchos cursos; un estudiante tiene muchas inscripciones.
+
+2. Curso
+   - Campos principales: id, titulo, descripcion, categoria, nivel, estado (borrador / publicado / archivado), instructorId, creadoEn
+   - Relaciones: Tiene muchas lecciones e inscripciones.
+
+3. Leccion
+   - Campos principales: id, titulo, tipo (contenido / cuestionario), contenido, videoUrl, orden, notaMinima, cursoId
+   - Relaciones: Tiene muchas preguntas si es cuestionario.
+
+4. Pregunta
+   - Campos principales: id, enunciado, opciones (lista), indiceCorrecto, leccionId
+   - Relaciones: Pertenece a una lección.
+
+5. Inscripcion
+   - Campos principales: id, estudianteId, cursoId, fechaInscripcion, completado
+   - Relaciones: Única por estudiante y curso.
+
+6. Progreso
+   - Campos principales: id, inscripcionId, leccionId, completada, intentos, mejorNota, actualizadoEn
+   - Relaciones: Único por inscripción y lección.
+
+ENDPOINTS MÍNIMOS (PREFIJO /api)
+================================================================================
+
+Autenticación y Usuarios:
+- POST        | /auth/register                   | Público
+- POST        | /auth/login                      | Público
+- GET / PUT   | /users/me                        | Autenticado
+
+Cursos (Catálogo e Instructor):
+- GET         | /cursos?categoria=&q=&page=&limit= | Público (solo publicados)
+- GET         | /cursos/:id                      | Público (detalle y temario, sin contenido)
+- POST        | /cursos                          | Instructor
+- PUT / DELETE| /cursos/:id                      | Instructor dueño
+- PATCH       | /cursos/:id/estado               | Instructor dueño (publicar o archivar)
+- GET         | /instructor/cursos               | Instructor
+- GET         | /instructor/cursos/:id/resumen   | Instructor dueño
+
+Lecciones y Preguntas:
+- POST        | /cursos/:id/lecciones            | Instructor dueño
+- PUT / DELETE| /lecciones/:id                   | Instructor dueño
+- PATCH       | /cursos/:id/lecciones/orden      | Instructor dueño
+- POST        | /lecciones/:id/preguntas         | Instructor dueño
+- PUT / DELETE| /preguntas/:id                   | Instructor dueño
+
+Inscripciones y Progreso del Estudiante:
+- POST        | /cursos/:id/inscripcion          | Estudiante
+- GET         | /inscripciones/mias              | Estudiante
+- GET         | /lecciones/:id                   | Estudiante inscrito (403 si está bloqueada)
+- POST        | /lecciones/:id/completar         | Estudiante inscrito
+- POST        | /lecciones/:id/intentos          | Estudiante inscrito (envía respuestas, recibe nota)
+- GET         | /cursos/:id/progreso             | Estudiante inscrito
+
+
+ENTREGA FINAL Y DEFENSA
+=================================
+Requisito de entrega:
+- La entrega final es el enlace al repositorio con el tag v1.0.0
+
+El repositorio debe incluir:
+- Código de backend y frontend en un monorepo con carpetas api/ y web/.
+- Dockerfile de la API, Dockerfile del frontend y docker-compose.yml en la raíz con tres servicios (API, frontend y base de datos) y un volumen para los datos.
+- README completo: cómo levantar todo con docker compose up --build, cómo correr el seed, variables de entorno y usuarios de prueba.
+- .env.example.
+- Documentación de la API (Swagger o colección de Postman).

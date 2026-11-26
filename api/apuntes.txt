@@ -197,3 +197,14 @@ pnpm db:migrate
 pnpm db:seed
 pnpm start
 Usuarios: ana@miniaula.com, carlos@miniaula.com, juan@miniaula.com, maria@miniaula.com, pedro@miniaula.com — contraseña Demo1234.
+
+
+
+¿Cómo subo los cambios nuevos? El ciclo siempre es el mismo, desde la raíz Miniaula/:
+git status              # 1. mirar qué cambió
+git add -A              # 2. preparar todo (el .gitignore filtra lo prohibido)
+git commit -m "descripcion"   # 3. guardar localmente
+git push origin main    # 4. subir a GitHub
+Si quieres estar al día con lo que haga Ricardo antes de trabajar:
+git pull origin main    # bajar sus cambios y mezclarlos con los tuyos
+Corre git pull antes de cada git push para evitar conflictos.
