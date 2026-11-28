@@ -1,12 +1,18 @@
 import useAuth from '../hooks/useAuth';
-import Dashboard from '../Dashboard';
-import HomePage from '../pages/HomePage';
+import Catalogo from '../pages/catalogo/Catalogo';
+import Dashboard from '../pages/dashboard/Dashboard';
+import HomePage from '../pages/home/HomePage';
 
-// El inicio público muestra la HomePage; con sesión se conserva el panel existente.
+// Sin sesión, la portada pública. Con sesión: el estudiante entra al catálogo
+// y el instructor a su panel.
 const HomeRoute = () => {
-  const { isLoggedIn } = useAuth();
+  const { isLoggedIn, user } = useAuth();
 
-  return isLoggedIn ? <Dashboard /> : <HomePage />;
+  if (!isLoggedIn) {
+    return <HomePage />;
+  }
+
+  return user?.rol === 'instructor' ? <Dashboard /> : <Catalogo />;
 };
 
 export default HomeRoute;

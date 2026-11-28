@@ -1,5 +1,6 @@
-import Navbar from './components/Navbar';
-import useAuth from './hooks/useAuth';
+import { Link } from 'react-router';
+import Navbar from '../../components/Navbar';
+import useAuth from '../../hooks/useAuth';
 
 const ROLE_LINKS = {
   estudiante: [
@@ -28,18 +29,20 @@ const Dashboard = () => {
         </p>
         <section className="mt-8 grid gap-4 sm:grid-cols-2">
           {links.map((link) => (
-            <div
+            <Link
               key={link.to}
-              className="rounded-xl border border-slate-200 bg-white p-5 text-indigo-700 shadow-sm"
+              to={link.to}
+              className="rounded-xl border border-slate-200 bg-white p-5 text-indigo-700 shadow-sm hover:border-indigo-300"
             >
               {link.label}
-            </div>
+            </Link>
           ))}
-          <div className="rounded-xl border border-slate-200 bg-white p-5 text-indigo-700 shadow-sm">
-            <a href="/perfil" className="hover:underline">
-              Ver mi perfil
-            </a>
-          </div>
+          <Link
+            to="/perfil"
+            className="rounded-xl border border-slate-200 bg-white p-5 text-indigo-700 shadow-sm hover:border-indigo-300"
+          >
+            Ver mi perfil
+          </Link>
         </section>
       </main>
     </div>

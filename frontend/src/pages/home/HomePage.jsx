@@ -1,6 +1,6 @@
 import { Link } from 'react-router';
-import SiteNavbar from '../components/SiteNavbar';
-import { HOME_MENU_ITEMS } from '../config/navigation';
+import SiteNavbar from '../../components/SiteNavbar';
+import { HOME_MENU_ITEMS } from '../../config/navigation';
 
 const HomePage = () => (
   <div className="min-h-screen bg-slate-50">

@@ -21,13 +21,20 @@ Roles: **estudiante** (catálogo, inscripción, lecciones, cuestionarios, progre
 | `src/hooks/useAuth.jsx` | Consume el contexto; aliases `isLoggedIn`, `isAuthenticated`, `logoutClick`. |
 | `src/hooks/useFetch.jsx` | Carga/error/lista vacía/refetch para datos remotos. |
 | `src/routes/AuthenticatedRoute.jsx` | Protege por sesión y, con `roles={[...]}`, por rol. |
-| `src/routes/HomeRoute.jsx` | En `/`: `HomePage` para visitantes y `Dashboard` para usuarios con sesión. |
-| `src/routes/RouterConfig.jsx` | `/login`, `/register`, `/` (HomeRoute), `/perfil` y redirección `*`. |
+| `src/routes/HomeRoute.jsx` | En `/`: `HomePage` para visitantes; con sesión, `Catalogo` para estudiantes y `Dashboard` para instructores. |
+| `src/routes/RouterConfig.jsx` | `/login`, `/register`, `/` (HomeRoute), `/cursos`, `/cursos/:id`, `/mis-cursos`, `/perfil` y redirección `*`. |
 | `src/pages/HomePage.jsx` | Portada pública: navbar de inicio + mensaje de bienvenida y acceso a la plataforma. |
 | `src/pages/auth/*`, `src/pages/dashboard/Perfil.jsx` | Formularios con validación Zod y errores de la API. `FormLogin` incluye el navbar de acceso; `Perfil` no se modifica. |
 | `src/config/navigation.js` | `SITE_TITLE` y menús `HOME_MENU_ITEMS` / `AUTH_MENU_ITEMS` (rutas relativas, sin host ni puerto). |
 | `src/components/SiteNavbar.jsx` | Navbar reutilizable con título, ítems y submenús plegables; escritorio y móvil. |
-| `src/components/*` | `Navbar` (panel/perfil), `SiteNavbar`, `FormInput`, `Button`, `Alert`, `ScreenPage` (paginador). |
+| `src/components/*` | `Navbar` (autenticado: buscador, "Mis cursos" y avatar), `ProfileMenu` (iniciales + sesión), `CourseCard`, `Pagination`, `SiteNavbar`, `FormInput`, `Button`, `Alert`. |
+| `src/services/CursoService.js` | `listarCursos` (paginado por el servidor), `obtenerCurso`, `listarCategorias`. |
+| `src/services/InscripcionService.js` | `inscribirseEnCurso`, `listarMisCursos`. |
+| `src/hooks/useCatalogo.js` | Lee `?q=&categoria=&page=` de la URL y pide esa página a la API. |
+| `src/pages/catalogo/Catalogo.jsx` | Catálogo: chips de categoría, tarjetas y paginación numerada. |
+| `src/pages/catalogo/CursoDetalle.jsx` | Detalle público con temario (sin contenido) e inscripción. |
+| `src/pages/catalogo/MisCursos.jsx` | Mis cursos con porcentaje de avance. |
+| `src/pages/home/HomePage.jsx`, `src/pages/dashboard/Dashboard.jsx` | Portada pública y panel, ahora dentro de `src/pages/` (antes en `src/`). |
 
 ### Navbars públicos
 
@@ -105,7 +112,7 @@ La API debe estar levantada aparte (`../api` con `pnpm start`) y el health check
 
 ## Deuda técnica / pendiente
 
-- Faltan las pantallas de catálogo, detalle de curso, lección, cuestionario, mis cursos y las vistas del instructor (editor de curso/lecciones/preguntas y panel). `Dashboard.jsx` tiene enlaces todavía sin ruta.
+- Faltan las pantallas de lección, cuestionario y las vistas del instructor (editor de curso/lecciones/preguntas y panel); `Dashboard.jsx` conserva enlaces a rutas `/instructor/*` todavía sin definir.
 - Las entradas `Conociendo la página`, `Centro de Investigación`, `Investigación Estudiantil`, `Apoyo Docente`, `Presencial` y `Semipresencial` de `src/config/navigation.js` son temporales y apuntan a `/` hasta que existan sus vistas.
 - Falta el `Dockerfile` multi-etapa con Nginx (RT-F09) y el `docker-compose.yml` raíz de tres servicios; hoy la API y la BD se levantan por separado.
 - El directorio se llama `frontend/`; la entrega pide `web/`.
