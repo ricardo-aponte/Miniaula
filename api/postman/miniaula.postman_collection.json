@@ -13,7 +13,8 @@
     { "key": "leccionId", "value": "1", "type": "string" },
     { "key": "leccionCuestionarioId", "value": "5", "type": "string" },
     { "key": "leccionBloqueadaId", "value": "8", "type": "string" },
-    { "key": "preguntaId", "value": "1", "type": "string" }
+    { "key": "preguntaId", "value": "1", "type": "string" },
+    { "key": "resetToken", "value": "", "type": "string" }
   ],
   "item": [
     {
@@ -161,6 +162,46 @@
             },
             "url": "{{baseUrl}}/auth/register"
           }
+        },
+        {
+          "name": "Recuperar contraseña (forgot)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  const data = pm.response.json();",
+                  "  if (data.resetToken) pm.collectionVariables.set('resetToken', data.resetToken);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"maria@miniaula.com\"\n}"
+            },
+            "url": "{{baseUrl}}/auth/forgot-password",
+            "description": "Genera un token de un solo uso. En desarrollo (NODE_ENV != production) la respuesta incluye resetToken para poder probar el flujo sin servicio de correo. La respuesta es la misma exista o no el email."
+          }
+        },
+        {
+          "name": "Restablecer contraseña (reset)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"{{resetToken}}\",\n  \"password\": \"Demo1234\"\n}"
+            },
+            "url": "{{baseUrl}}/auth/reset-password",
+            "description": "Usa el resetToken guardado por la request anterior. El ejemplo vuelve a dejar la contraseña Demo1234 para no romper los demás requests de la colección."
+          }
         }
       ]
     },
@@ -218,6 +259,14 @@
             "method": "GET",
             "header": [],
             "url": "{{baseUrl}}/cursos?page=1&limit=10&q=web&categoria=Programación"
+          }
+        },
+        {
+          "name": "Listar categorías publicadas",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/cursos/categorias"
           }
         },
         {

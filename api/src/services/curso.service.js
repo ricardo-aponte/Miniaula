@@ -23,6 +23,13 @@ function toCursoResumen(curso) {
   };
 }
 
+function toCursoCatalogo(curso, totalLecciones) {
+  return {
+    ...toCursoResumen(curso),
+    totalLecciones,
+  };
+}
+
 function toCursoInstructor(curso) {
   const data = toPlain(curso);
 
@@ -47,11 +54,20 @@ function agruparPreguntasPorLeccion(preguntas) {
 export const cursoService = {
   async listCatalog(filtros) {
     const { rows, count } = await cursoRepository.findPublished(filtros);
+    const totalesPorCurso = await leccionRepository.countByCursos(rows.map((row) => row.id));
 
     return {
-      cursos: rows.map(toCursoResumen),
+      cursos: rows.map((curso) =>
+        toCursoCatalogo(curso, totalesPorCurso[Number(curso.id)] ?? 0)
+      ),
       pagination: buildPagination({ page: filtros.page, limit: filtros.limit, total: count }),
     };
+  },
+
+  async listCategorias() {
+    const categorias = await cursoRepository.findCategorias();
+
+    return { categorias };
   },
 
   async getPublicDetail(cursoId) {

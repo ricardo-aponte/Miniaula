@@ -14,5 +14,8 @@ export const env = {
     secret: process.env.JWT_SECRET || 'dev_secret',
     expiresIn: process.env.JWT_EXPIRES_IN || '7d',
   },
+  passwordReset: {
+    ttlMinutes: Number(process.env.PASSWORD_RESET_TTL_MINUTES) || 30,
+  },
   corsOrigin: process.env.CORS_ORIGIN || 'http://localhost:5701',
 };

@@ -32,6 +32,27 @@ export const loginSchema = z.object({
     .min(1, 'La contraseña es obligatoria.'),
 });
 
+export const forgotPasswordSchema = z.object({
+  email: z
+    .string({ required_error: 'El email es obligatorio.' })
+    .trim()
+    .toLowerCase()
+    .email('El formato del email no es válido.')
+    .max(150),
+});
+
+export const resetPasswordSchema = z.object({
+  token: z
+    .string({ required_error: 'El token es obligatorio.' })
+    .trim()
+    .min(1, 'El token es obligatorio.')
+    .max(128, 'El token no es válido.'),
+  password: z
+    .string({ required_error: 'La nueva contraseña es obligatoria.' })
+    .min(8, 'La contraseña debe tener al menos 8 caracteres.')
+    .max(72, 'La contraseña no puede superar 72 caracteres.'),
+});
+
 export const updateProfileSchema = z
   .object({
     nombre: z

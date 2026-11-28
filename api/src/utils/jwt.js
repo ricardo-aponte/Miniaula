@@ -9,6 +9,9 @@ export function signAccessToken(usuario) {
   );
 }
 
+// Deja propagar el error (TokenExpiredError / JsonWebTokenError) para que
+// auth.middleware.js responda 401 con el código correcto. No se registra el
+// token ni el secreto en consola.
 export function verifyAccessToken(token) {
   return jwt.verify(token, env.jwt.secret);
 }

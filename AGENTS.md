@@ -25,9 +25,9 @@ El código de la API usa **ES modules** (`"type": "module"` en `api/package.json
 | Módulo | Endpoints |
 | --- | --- |
 | Health | `GET /api/health` |
-| Auth | `POST /api/auth/register`, `POST /api/auth/login` |
+| Auth | `POST /api/auth/register`, `POST /api/auth/login`, `POST /api/auth/forgot-password`, `POST /api/auth/reset-password` |
 | Usuarios | `GET /api/users/me`, `PUT /api/users/me` |
-| Catálogo | `GET /api/cursos?q=&categoria=&page=&limit=`, `GET /api/cursos/:id` |
+| Catálogo | `GET /api/cursos?q=&categoria=&page=&limit=`, `GET /api/cursos/categorias`, `GET /api/cursos/:id` |
 | Cursos (instructor) | `POST /api/cursos`, `PUT /api/cursos/:id`, `DELETE /api/cursos/:id`, `PATCH /api/cursos/:id/estado` |
 | Panel instructor | `GET /api/instructor/cursos`, `GET /api/instructor/cursos/:id`, `GET /api/instructor/cursos/:id/resumen` |
 | Lecciones | `POST /api/cursos/:id/lecciones`, `PUT /api/lecciones/:id`, `DELETE /api/lecciones/:id`, `PATCH /api/cursos/:id/lecciones/orden` |
@@ -85,10 +85,10 @@ repositories/          Consultas Sequelize (incluye resourceAuth.repository.js)
 routes/                index.js monta auth, users, cursos, instructor, lecciones, preguntas, inscripciones
 middlewares/           auth, validate, ownership, enrollment, rateLimit, errorHandler
 validators/            Esquemas Zod por módulo + common.validator.js
-db/models/             Usuario, Curso, Leccion, Pregunta, Inscripcion, Progreso y asociaciones
-db/migrations/         Migraciones CommonJS de las 6 tablas
+db/models/             Usuario, Curso, Leccion, Pregunta, Inscripcion, Progreso, TokenRecuperacion y asociaciones
+db/migrations/         Migraciones CommonJS de las 7 tablas
 db/seeders/            Seeders CommonJS con datos demo
-utils/                 jwt.js, pagination.js, progress.js, serializers.js
+utils/                 jwt.js, pagination.js, progress.js, serializers.js, text.js
 errors/AppError.js     Clase de error de aplicación
 ```
 
@@ -148,7 +148,7 @@ Los seeders son tolerantes a bases con datos previos: los usuarios se buscan por
 Hay dos `.env` complementarios:
 
 - **Raíz** (`Miniaula/.env`): configura Docker (`DB_USER`, `DB_PASSWORD`, `DB_NAME`, `DB_PORT`).
-- **`api/.env`**: configura la aplicación (`PORT`, `NODE_ENV`, `DB_*`, `JWT_SECRET`, `JWT_EXPIRES_IN`, `CORS_ORIGIN`).
+- **`api/.env`**: configura la aplicación (`PORT`, `NODE_ENV`, `DB_*`, `JWT_SECRET`, `JWT_EXPIRES_IN`, `PASSWORD_RESET_TTL_MINUTES`, `CORS_ORIGIN`).
 
 `DB_*` debe coincidir entre ambos. `DB_HOST` en la API es `localhost` porque el puerto está mapeado al host. Nunca se lee, imprime, copia ni commitea el contenido de un `.env`; usar `api/.env.example` como plantilla.
 
@@ -196,6 +196,7 @@ Las requests de creación guardan `cursoId`, `leccionId`, `leccionCuestionarioId
 - El `Dockerfile` de la API no está conectado a `docker-compose.yml` y no funciona con el estado actual (`npm ci` sin lockfile; `npm run db:migrate` depende de `pnpm`). La API se ejecuta con pnpm en local. Falta el frontend `web/` y el compose de tres servicios que pide la entrega final.
 - El `README.md` de la raíz está vacío y todavía no hay Swagger: la documentación es la colección de Postman.
 - No hay tests automatizados configurados.
+- **Recuperación de contraseña sin envío de correo**: `POST /api/auth/forgot-password` genera el token y guarda solo su hash en `tokens_recuperacion`, pero no lo envía por email. En desarrollo lo devuelve en la respuesta (`resetToken`) para poder probar el flujo; en producción ese campo se omite y el flujo queda incompleto. Falta integrar un mailer (SMTP) y las pantallas de "olvidé mi contraseña" en `frontend/`.
 
 ## Solución de problemas
 

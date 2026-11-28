@@ -11,3 +11,6 @@ export const MAX_INTENTOS_CUESTIONARIO = 3;
 
 // Nota mínima por defecto cuando una lección de tipo cuestionario no la define.
 export const NOTA_MINIMA_POR_DEFECTO = 60;
+
+// Longitud del token de recuperación de contraseña (generado con node:crypto).
+export const LONGITUD_TOKEN_RECUPERACION = 32;

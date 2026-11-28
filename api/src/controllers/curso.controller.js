@@ -10,6 +10,15 @@ export const cursoController = {
     }
   },
 
+  async listCategorias(req, res, next) {
+    try {
+      const result = await cursoService.listCategorias();
+      return res.status(200).json(result);
+    } catch (error) {
+      return next(error);
+    }
+  },
+
   async getPublic(req, res, next) {
     try {
       const { curso } = await cursoService.getPublicDetail(req.validated.params.id);

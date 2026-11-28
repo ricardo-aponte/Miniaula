@@ -28,6 +28,18 @@ export const cursoRepository = {
     return { rows, count };
   },
 
+  async findCategorias() {
+    const rows = await Curso.findAll({
+      where: { estado: 'publicado' },
+      attributes: ['categoria'],
+      group: ['categoria'],
+      order: [['categoria', 'ASC']],
+      raw: true,
+    });
+
+    return rows.map((row) => row.categoria);
+  },
+
   findPublicById(cursoId) {
     return Curso.findOne({
       where: { id: cursoId, estado: 'publicado' },

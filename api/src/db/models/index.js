@@ -5,6 +5,7 @@ import { Leccion } from './leccion.model.js';
 import { Pregunta } from './pregunta.model.js';
 import { Inscripcion } from './inscripcion.model.js';
 import { Progreso } from './progreso.model.js';
+import { TokenRecuperacion } from './tokenRecuperacion.model.js';
 
 // Usuario (instructor) <-> Curso
 Usuario.hasMany(Curso, { foreignKey: 'instructorId', as: 'cursosDictados' });
@@ -32,6 +33,10 @@ Progreso.belongsTo(Inscripcion, { foreignKey: 'inscripcionId', as: 'inscripcion'
 Leccion.hasMany(Progreso, { foreignKey: 'leccionId', as: 'progresos' });
 Progreso.belongsTo(Leccion, { foreignKey: 'leccionId', as: 'leccion' });
 
+// Usuario <-> TokenRecuperacion (recuperación de contraseña)
+Usuario.hasMany(TokenRecuperacion, { foreignKey: 'usuarioId', as: 'tokensRecuperacion' });
+TokenRecuperacion.belongsTo(Usuario, { foreignKey: 'usuarioId', as: 'usuario' });
+
 export {
   sequelize,
   Usuario,
@@ -40,4 +45,5 @@ export {
   Pregunta,
   Inscripcion,
   Progreso,
+  TokenRecuperacion,
 };

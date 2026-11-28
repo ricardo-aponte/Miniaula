@@ -20,6 +20,8 @@ const router = Router();
 
 // Catálogo público
 router.get('/', validate({ query: catalogQuerySchema }), cursoController.list);
+// Debe declararse antes de /:id para que no se interprete como un id.
+router.get('/categorias', cursoController.listCategorias);
 router.get('/:id', validate({ params: idParamSchema }), cursoController.getPublic);
 
 // Cursos gestionados por el instructor dueño
